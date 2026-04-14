@@ -13,7 +13,7 @@ export default function Footer() {
             <Link href="/login" className="hover:text-white transition-colors duration-150">
               Login
             </Link>
-            <a href="mailto:hello@getpropos.com" className="hover:text-white transition-colors duration-150">
+            <a href="mailto:support@getpropos.com" className="hover:text-white transition-colors duration-150">
               Contact
             </a>
           </div>
