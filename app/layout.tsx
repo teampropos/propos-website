@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Fraunces, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -32,6 +33,20 @@ export default function RootLayout({
       lang="en"
       className={`${fraunces.variable} ${dmSans.variable} antialiased`}
     >
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-TZ2YTM0DT0"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-TZ2YTM0DT0');
+          `}
+        </Script>
+      </head>
       <body className="min-h-screen flex flex-col bg-white text-gray-900 font-sans">
         <Navbar />
         <main className="flex-1">{children}</main>

@@ -21,11 +21,14 @@ export default function Footer() {
         <div className="mt-8 pt-8 border-t border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <p className="text-sm text-gray-500">&copy; 2025 Propos. All rights reserved.</p>
           <div className="flex gap-6 text-sm text-gray-500">
-            <Link href="/privacy" className="hover:text-gray-300 transition-colors duration-150">
+            <Link href="/privacy-policy" className="hover:text-gray-300 transition-colors duration-150">
               Privacy Policy
             </Link>
             <Link href="/terms" className="hover:text-gray-300 transition-colors duration-150">
               Terms of Service
+            </Link>
+            <Link href="/refund-policy" className="hover:text-gray-300 transition-colors duration-150">
+              Refund Policy
             </Link>
           </div>
         </div>
