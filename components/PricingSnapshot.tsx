@@ -52,7 +52,7 @@ export default function PricingSnapshot() {
                 ))}
               </ul>
               <Link
-                href="/coming-soon"
+                href="/get-started?plan=founder"
                 className="block text-center text-sm font-medium bg-[var(--color-accent)] text-white px-6 py-3 rounded-lg shadow-sm hover:bg-[var(--color-accent-hover)] transition-colors duration-150"
               >
                 Claim your spot
@@ -82,7 +82,7 @@ export default function PricingSnapshot() {
               ))}
             </ul>
             <Link
-              href="/coming-soon"
+              href="/get-started?plan=standard"
               className="block text-center text-sm font-medium border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors duration-150"
             >
               Get started
