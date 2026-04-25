@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Fraunces, DM_Sans } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { ConditionalNavbar, ConditionalFooter } from "@/components/ConditionalNavigation";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -48,9 +47,9 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="min-h-screen flex flex-col bg-white text-gray-900 font-sans">
-        <Navbar />
+        <ConditionalNavbar />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <ConditionalFooter />
       </body>
     </html>
   );
