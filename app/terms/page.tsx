@@ -114,12 +114,8 @@ export default function TermsPage() {
               follows:
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>
-                Founder Tier (first 50 clients): $12.99 AUD per month, per location — locked for
-                life.
-              </li>
-              <li>Standard Tier: $19.99 AUD per month, per location.</li>
-              <li>Additional locations: $12.99 AUD per month, per location.</li>
+              <li>$12 AUD per month, per location.</li>
+              <li>Additional locations: $6 AUD per month, per location.</li>
               <li>
                 One-time backlog fee charged at signup: $49 (1–25 reviews), $99 (26–100 reviews),
                 $149 (101–200 reviews), $199 (200+ reviews).

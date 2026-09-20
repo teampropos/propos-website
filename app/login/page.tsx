@@ -39,8 +39,8 @@ export default function LoginPage() {
     <section className="flex-1 flex items-center justify-center py-16 px-6">
       <div className="w-full max-w-[400px]">
         <div className="text-center mb-8">
-          <p className="font-heading text-2xl font-bold mb-2">Propos</p>
-          <h1 className="font-heading text-[32px] font-bold">Welcome back.</h1>
+          <p className="font-heading text-2xl font-semibold mb-2">Propos</p>
+          <h1 className="font-heading text-[32px] font-semibold">Welcome back.</h1>
         </div>
 
         <form className="space-y-4" onSubmit={handleLogin}>
@@ -54,7 +54,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent"
+              className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
               placeholder="you@business.com"
             />
           </div>
@@ -74,7 +74,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent"
+              className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
             />
           </div>
 
@@ -83,7 +83,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--color-accent)] text-white font-medium py-2.5 rounded-lg hover:bg-[var(--color-accent-hover)] transition-colors duration-150 disabled:opacity-60"
+            className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors duration-150 disabled:opacity-60"
           >
             {loading ? "Logging in..." : "Log in"}
           </button>

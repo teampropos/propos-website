@@ -47,20 +47,18 @@ function StepIndicator({ current }: { current: number }) {
         <div key={i} className="flex items-center gap-2">
           <div
             className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
-              i < current
-                ? "bg-[#2563EB] text-white"
-                : i === current
-                ? "bg-[#2563EB] text-white"
-                : "bg-[#E5E7EB] text-[#6B7280]"
+              i <= current
+                ? "bg-[var(--color-text-primary)] text-white"
+                : "border border-[var(--color-border)] text-[var(--color-text-secondary)]"
             }`}
           >
             {i < current ? <CheckCircle size={14} /> : i + 1}
           </div>
-          <span className={`text-xs hidden sm:block ${i === current ? "text-[#111827] font-medium" : "text-[#6B7280]"}`}>
+          <span className={`text-xs hidden sm:block ${i === current ? "text-[var(--color-text-primary)] font-medium" : "text-[var(--color-text-secondary)]"}`}>
             {label}
           </span>
           {i < STEPS.length - 1 && (
-            <div className={`h-px w-6 ${i < current ? "bg-[#2563EB]" : "bg-[#E5E7EB]"}`} />
+            <div className={`h-px w-6 ${i < current ? "bg-[var(--color-text-primary)]" : "bg-[var(--color-border)]"}`} />
           )}
         </div>
       ))}
@@ -86,10 +84,29 @@ function OnboardingInner() {
     const token = getToken();
     if (token) {
       api.get<{ onboarding_complete: boolean }>("/api/auth/me")
-        .then((c) => { if (c.onboarding_complete) router.replace("/portal/dashboard"); })
+        .then((c) => {
+          if (c.onboarding_complete) { router.replace("/portal/dashboard"); return; }
+          if (searchParams.get("gbp_connected")) setStep(2);
+          else if (searchParams.get("gbp_error")) {
+            setStep(1);
+            setError("Couldn't connect your Google Business Profile. Please try again.");
+          }
+        })
         .catch(() => {});
     }
-  }, [router]);
+  }, [router, searchParams]);
+
+  async function handleConnectGoogle() {
+    setLoading(true);
+    setError("");
+    try {
+      const { url } = await api.get<{ url: string }>("/api/auth/google/connect?redirect=/onboarding");
+      window.location.href = url;
+    } catch {
+      setLoading(false);
+      setError("Couldn't start the Google connection. Please try again.");
+    }
+  }
 
   async function handleSetPassword() {
     setError("");
@@ -133,48 +150,48 @@ function OnboardingInner() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-[var(--color-surface)] flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
-          <p className="font-heading text-2xl font-bold text-[#111827]">Propos</p>
-          <p className="text-[#6B7280] mt-1 text-sm">Let&apos;s get you set up.</p>
+          <p className="font-heading text-2xl font-semibold text-[var(--color-text-primary)]">Propos</p>
+          <p className="text-[var(--color-text-secondary)] mt-1 text-sm">Let&apos;s get you set up.</p>
         </div>
 
         <StepIndicator current={step} />
 
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8">
+        <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-8">
 
           {/* Step 0: Set password */}
           {step === 0 && (
             <div>
-              <h2 className="font-heading text-2xl font-bold text-[#111827] mb-1">Create your password</h2>
-              <p className="text-sm text-[#6B7280] mb-6">You&apos;ll use this to log into Propos.</p>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Create your password</h2>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-6">You&apos;ll use this to log into Propos.</p>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">Password</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">Password</label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                    className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
                     placeholder="At least 8 characters"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">Confirm password</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">Confirm password</label>
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                    className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
                   />
                 </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
+                {error && <p className="text-sm text-red-600">{error}</p>}
                 <button
                   onClick={handleSetPassword}
                   disabled={loading}
-                  className="w-full bg-[#2563EB] text-white font-medium py-2.5 rounded-lg hover:bg-[#1D4ED8] transition-colors disabled:opacity-60"
+                  className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
                 >
                   {loading ? "Setting up..." : "Continue"}
                 </button>
@@ -185,23 +202,25 @@ function OnboardingInner() {
           {/* Step 1: Connect Google */}
           {step === 1 && (
             <div>
-              <h2 className="font-heading text-2xl font-bold text-[#111827] mb-1">Connect Google Business Profile</h2>
-              <p className="text-sm text-[#6B7280] mb-6">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Connect Google Business Profile</h2>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-6">
                 Propos needs access to your Google Business Profile to pull reviews and post replies.
               </p>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-                <p className="text-sm text-yellow-800 font-medium mb-1">Coming very soon</p>
-                <p className="text-sm text-yellow-700">
-                  We&apos;re finalising our Google API approval. You&apos;ll receive an email the moment it&apos;s ready to connect — usually within a few days.
-                </p>
-              </div>
+              {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
 
               <button
-                onClick={() => setStep(2)}
-                className="w-full bg-[#2563EB] text-white font-medium py-2.5 rounded-lg hover:bg-[#1D4ED8] transition-colors"
+                onClick={handleConnectGoogle}
+                disabled={loading}
+                className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
               >
-                Continue for now
+                {loading ? "Connecting..." : "Connect Google Business Profile"}
+              </button>
+              <button
+                onClick={() => setStep(2)}
+                className="w-full text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] py-2.5 mt-1 transition-colors"
+              >
+                Skip for now — I&apos;ll connect later
               </button>
             </div>
           )}
@@ -209,8 +228,8 @@ function OnboardingInner() {
           {/* Step 2: Choose tone */}
           {step === 2 && (
             <div>
-              <h2 className="font-heading text-2xl font-bold text-[#111827] mb-1">Choose your reply tone</h2>
-              <p className="text-sm text-[#6B7280] mb-6">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Choose your reply tone</h2>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-6">
                 Pick the voice that best suits your venue. You can change this anytime.
               </p>
 
@@ -219,22 +238,22 @@ function OnboardingInner() {
                   <button
                     key={t.value}
                     onClick={() => setTone(t.value)}
-                    className={`text-left border rounded-xl p-4 transition-colors ${
-                      tone === t.value ? "border-[#2563EB] bg-[#EFF6FF]" : "border-[#E5E7EB] hover:border-[#2563EB]/50"
+                    className={`text-left border p-4 transition-colors ${
+                      tone === t.value ? "border-[var(--color-accent)] bg-[var(--color-surface)]" : "border-[var(--color-border)] hover:border-[var(--color-text-primary)]"
                     }`}
                   >
-                    <p className={`font-medium text-sm ${tone === t.value ? "text-[#2563EB]" : "text-[#111827]"}`}>
+                    <p className={`font-medium text-sm ${tone === t.value ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"}`}>
                       {t.label}
                     </p>
-                    <p className="text-xs text-[#6B7280] mt-0.5">{t.description}</p>
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{t.description}</p>
                   </button>
                 ))}
               </div>
 
               {tone && (
-                <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 mb-5">
-                  <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-2">Sample reply</p>
-                  <p className="text-sm text-[#374151] italic leading-relaxed">
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 mb-5">
+                  <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Sample reply</p>
+                  <p className="text-sm text-[var(--color-text-primary)] italic leading-relaxed">
                     &ldquo;{TONES.find((t2) => t2.value === tone)?.sample}&rdquo;
                   </p>
                 </div>
@@ -243,7 +262,7 @@ function OnboardingInner() {
               <button
                 onClick={() => tone && setStep(3)}
                 disabled={!tone}
-                className="w-full bg-[#2563EB] text-white font-medium py-2.5 rounded-lg hover:bg-[#1D4ED8] transition-colors disabled:opacity-60"
+                className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
               >
                 Continue
               </button>
@@ -253,8 +272,8 @@ function OnboardingInner() {
           {/* Step 3: Owner name */}
           {step === 3 && (
             <div>
-              <h2 className="font-heading text-2xl font-bold text-[#111827] mb-1">Your name</h2>
-              <p className="text-sm text-[#6B7280] mb-6">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Your name</h2>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-6">
                 Optional. If added, replies will be signed off with your name.
               </p>
 
@@ -263,15 +282,15 @@ function OnboardingInner() {
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
                 placeholder="e.g. Marco"
-                className="w-full border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] mb-5"
+                className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)] mb-5"
               />
 
-              {error && <p className="text-sm text-red-500 mb-3">{error}</p>}
+              {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
 
               <button
                 onClick={handleSavePreferences}
                 disabled={loading}
-                className="w-full bg-[#2563EB] text-white font-medium py-2.5 rounded-lg hover:bg-[#1D4ED8] transition-colors disabled:opacity-60"
+                className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
               >
                 {loading ? "Saving..." : "Continue"}
               </button>
@@ -281,22 +300,22 @@ function OnboardingInner() {
           {/* Step 4: Backlog */}
           {step === 4 && (
             <div>
-              <h2 className="font-heading text-2xl font-bold text-[#111827] mb-1">Reply to your existing reviews?</h2>
-              <p className="text-sm text-[#6B7280] mb-6">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Reply to your existing reviews?</h2>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-6">
                 Propos can work through your backlog of unanswered reviews — generating a reply for each one for your approval. One-time fee based on volume.
               </p>
 
-              <div className="grid grid-cols-2 gap-3 mb-5">
+              <div className="grid grid-cols-2 gap-px bg-[var(--color-border)] border border-[var(--color-border)] mb-5">
                 {[
                   { label: "1–25 reviews", price: "$49" },
                   { label: "26–100 reviews", price: "$99" },
                   { label: "101–200 reviews", price: "$149" },
                   { label: "200+ reviews", price: "$199" },
                 ].map((tier) => (
-                  <div key={tier.label} className="border border-[#E5E7EB] rounded-xl p-4 text-center">
-                    <p className="text-sm text-[#6B7280]">{tier.label}</p>
-                    <p className="font-heading text-xl font-bold text-[#111827] mt-1">{tier.price}</p>
-                    <p className="text-xs text-[#6B7280]">one-time</p>
+                  <div key={tier.label} className="bg-[var(--color-paper)] p-4 text-center">
+                    <p className="text-sm text-[var(--color-text-secondary)]">{tier.label}</p>
+                    <p className="font-heading text-xl font-semibold text-[var(--color-text-primary)] mt-1">{tier.price}</p>
+                    <p className="text-xs text-[var(--color-text-secondary)]">one-time</p>
                   </div>
                 ))}
               </div>
@@ -305,14 +324,14 @@ function OnboardingInner() {
                 <button
                   onClick={() => handleComplete(true)}
                   disabled={loading}
-                  className="w-full bg-[#2563EB] text-white font-medium py-2.5 rounded-lg hover:bg-[#1D4ED8] transition-colors disabled:opacity-60"
+                  className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
                 >
                   Yes, reply to my backlog
                 </button>
                 <button
                   onClick={() => handleComplete(false)}
                   disabled={loading}
-                  className="w-full bg-white border border-[#E5E7EB] text-[#6B7280] font-medium py-2.5 rounded-lg hover:border-[#111827] hover:text-[#111827] transition-colors"
+                  className="w-full bg-[var(--color-paper)] border border-[var(--color-border)] text-[var(--color-text-secondary)] font-medium py-2.5 hover:border-[var(--color-text-primary)] hover:text-[var(--color-text-primary)] transition-colors"
                 >
                   No thanks, skip
                 </button>

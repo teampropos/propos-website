@@ -32,9 +32,9 @@ export default function PortalSidebar() {
   }
 
   return (
-    <aside className="w-60 shrink-0 min-h-screen bg-[#111827] flex flex-col">
+    <aside className="w-60 shrink-0 min-h-screen bg-[var(--color-text-primary)] flex flex-col">
       <div className="px-6 py-5 border-b border-white/10">
-        <Link href="/portal/dashboard" className="font-heading text-xl font-bold text-white">
+        <Link href="/portal/dashboard" className="font-heading text-xl font-semibold text-white">
           Propos
         </Link>
       </div>
@@ -46,13 +46,13 @@ export default function PortalSidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
+              className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
                 active
-                  ? "bg-white/10 text-white"
+                  ? "bg-white/10 text-white border-l-2 border-[var(--color-accent)] -ml-0.5"
                   : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <Icon size={18} />
+              <Icon size={18} strokeWidth={1.75} />
               {label}
             </Link>
           );
@@ -62,9 +62,9 @@ export default function PortalSidebar() {
       <div className="px-3 py-4 border-t border-white/10">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-150 w-full"
+          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-150 w-full"
         >
-          <LogOut size={18} />
+          <LogOut size={18} strokeWidth={1.75} />
           Log out
         </button>
       </div>

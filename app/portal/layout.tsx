@@ -38,14 +38,14 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
   if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB]">
-        <div className="w-6 h-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-surface)]">
+        <div className="w-6 h-6 border-2 border-[var(--color-text-primary)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F9FAFB]">
+    <div className="flex min-h-screen bg-[var(--color-surface)]">
       <PortalSidebar />
       <div className="flex-1 overflow-auto">
         {children}

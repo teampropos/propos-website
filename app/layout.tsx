@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Fraunces, DM_Sans } from "next/font/google";
+import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ConditionalNavbar, ConditionalFooter } from "@/components/ConditionalNavigation";
 
@@ -10,8 +10,8 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const hanken = Hanken_Grotesk({
+  variable: "--font-hanken",
   subsets: ["latin"],
   display: "swap",
 });
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${dmSans.variable} antialiased`}
+      className={`${fraunces.variable} ${hanken.variable} antialiased`}
     >
       <head>
         <Script
@@ -46,7 +46,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className="min-h-screen flex flex-col bg-white text-gray-900 font-sans">
+      <body className="min-h-screen flex flex-col bg-[var(--color-paper)] text-[var(--color-text-primary)] font-sans">
         <ConditionalNavbar />
         <main className="flex-1">{children}</main>
         <ConditionalFooter />

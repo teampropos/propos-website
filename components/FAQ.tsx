@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 const faqs = [
   {
     q: "How does Propos reply on my behalf?",
-    a: "Propos connects to your Google Business Profile via Google\u2019s official API. When you sign up, you authorise Propos to manage your reviews. We never have access to your Google account password.",
+    a: "Propos connects to your Google Business Profile via Google’s official API. When you sign up, you authorise Propos to manage your reviews. We never have access to your Google account password.",
   },
   {
     q: "What happens with negative reviews?",
@@ -23,7 +22,7 @@ const faqs = [
   },
   {
     q: "Do you offer a free trial?",
-    a: "We don\u2019t offer a free trial, but the Founder tier is priced to make it an easy decision. If you\u2019re not happy in the first month, reach out and we\u2019ll sort it out.",
+    a: "We don’t offer a free trial, but at $12/month it’s priced to make it an easy decision. If you’re not happy in the first month, reach out and we’ll sort it out.",
   },
 ];
 
@@ -55,21 +54,15 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function FAQ() {
   return (
-    <motion.div
-      className="max-w-[700px] mx-auto"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-    >
-      <h2 className="font-heading text-[28px] md:text-[36px] font-bold text-center mb-10">
+    <div className="max-w-[700px]">
+      <h2 className="font-heading text-[28px] md:text-[36px] font-semibold mb-10">
         Frequently asked questions
       </h2>
-      <div>
+      <div className="border-t border-[var(--color-border)]">
         {faqs.map((faq) => (
           <FAQItem key={faq.q} q={faq.q} a={faq.a} />
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }

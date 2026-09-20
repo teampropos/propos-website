@@ -38,8 +38,8 @@ export default function ComingSoonPage() {
   return (
     <section className="flex-1 flex items-center justify-center py-24 px-6">
       <div className="text-center max-w-[480px]">
-        <p className="font-heading text-2xl font-bold mb-2">Propos</p>
-        <h1 className="font-heading text-[36px] md:text-[48px] font-bold leading-tight mb-4">
+        <p className="font-heading text-2xl font-semibold mb-2">Propos</p>
+        <h1 className="font-heading text-[36px] md:text-[48px] font-semibold leading-tight mb-4">
           Coming soon.
         </h1>
         <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed mb-8">
@@ -48,8 +48,8 @@ export default function ComingSoonPage() {
         </p>
 
         {status === "success" ? (
-          <div className="bg-green-50 border border-green-200 rounded-lg px-6 py-4 mb-6">
-            <p className="text-green-700 font-medium">{message}</p>
+          <div className="border border-[var(--color-border)] px-6 py-4 mb-6">
+            <p className="text-[var(--color-text-primary)] font-medium">{message}</p>
           </div>
         ) : (
           <form className="flex flex-col sm:flex-row gap-3 max-w-[400px] mx-auto mb-4" onSubmit={handleSubmit}>
@@ -58,13 +58,13 @@ export default function ComingSoonPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@business.com"
-              className="flex-1 border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent"
+              className="flex-1 border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
               required
             />
             <button
               type="submit"
               disabled={status === "loading"}
-              className="bg-[var(--color-accent)] text-white font-medium text-sm px-6 py-2.5 rounded-lg hover:bg-[var(--color-accent-hover)] transition-colors duration-150 whitespace-nowrap disabled:opacity-50"
+              className="bg-[var(--color-text-primary)] text-white font-medium text-sm px-6 py-2.5 hover:bg-black transition-colors duration-150 whitespace-nowrap disabled:opacity-50"
             >
               {status === "loading" ? "..." : "Notify me"}
             </button>

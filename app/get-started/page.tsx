@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 const BUSINESS_TYPES = [
   "Restaurant",
@@ -13,16 +12,12 @@ const BUSINESS_TYPES = [
   "Other",
 ];
 
-function GetStartedForm() {
-  const searchParams = useSearchParams();
-  const initialPlan = searchParams.get("plan") === "founder" ? "founder" : "standard";
-
+export default function GetStartedPage() {
   const [form, setForm] = useState({
     email: "",
     business_name: "",
     business_type: "Restaurant",
     city: "",
-    plan: initialPlan,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -54,55 +49,29 @@ function GetStartedForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-[var(--color-surface)] flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <a href="/" className="font-heading text-xl font-bold text-[#111827]">
+          <a href="/" className="font-heading text-xl font-semibold text-[var(--color-text-primary)]">
             Propos
           </a>
-          <h1 className="font-heading text-2xl font-bold text-[#111827] mt-6 mb-2">
+          <h1 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mt-6 mb-2">
             Get started
           </h1>
-          <p className="text-[#6B7280] text-sm">
+          <p className="text-[var(--color-text-secondary)] text-sm">
             Tell us about your business and we&apos;ll set everything up.
           </p>
         </div>
 
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8">
-          {/* Plan toggle */}
-          <div className="mb-6">
-            <p className="text-sm font-medium text-[#111827] mb-2">Choose your plan</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => set("plan", "founder")}
-                className={`border rounded-xl p-3 text-left transition-colors ${
-                  form.plan === "founder"
-                    ? "border-[#2563EB] bg-[#EFF6FF]"
-                    : "border-[#E5E7EB] hover:border-[#2563EB]"
-                }`}
-              >
-                <p className="text-sm font-bold text-[#111827]">$12.99/mo</p>
-                <p className="text-xs text-[#6B7280]">Founder — first 50 only</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => set("plan", "standard")}
-                className={`border rounded-xl p-3 text-left transition-colors ${
-                  form.plan === "standard"
-                    ? "border-[#2563EB] bg-[#EFF6FF]"
-                    : "border-[#E5E7EB] hover:border-[#2563EB]"
-                }`}
-              >
-                <p className="text-sm font-bold text-[#111827]">$19.99/mo</p>
-                <p className="text-xs text-[#6B7280]">Standard</p>
-              </button>
-            </div>
+        <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-8">
+          <div className="mb-6 border border-[var(--color-border)] p-3">
+            <p className="text-sm font-semibold text-[var(--color-text-primary)]">$12/month</p>
+            <p className="text-xs text-[var(--color-text-secondary)]">Additional locations $6/month each</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#111827] mb-1.5">
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
                 Your email
               </label>
               <input
@@ -111,12 +80,12 @@ function GetStartedForm() {
                 value={form.email}
                 onChange={(e) => set("email", e.target.value)}
                 placeholder="you@yourbusiness.com"
-                className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                className="w-full border border-[var(--color-border)] px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#111827] mb-1.5">
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
                 Business name
               </label>
               <input
@@ -125,18 +94,18 @@ function GetStartedForm() {
                 value={form.business_name}
                 onChange={(e) => set("business_name", e.target.value)}
                 placeholder="The Harbour Kitchen"
-                className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                className="w-full border border-[var(--color-border)] px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#111827] mb-1.5">
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
                 Business type
               </label>
               <select
                 value={form.business_type}
                 onChange={(e) => set("business_type", e.target.value)}
-                className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent bg-white"
+                className="w-full border border-[var(--color-border)] px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)] bg-[var(--color-paper)]"
               >
                 {BUSINESS_TYPES.map((t) => (
                   <option key={t} value={t}>{t}</option>
@@ -145,7 +114,7 @@ function GetStartedForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#111827] mb-1.5">
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
                 City
               </label>
               <input
@@ -154,36 +123,28 @@ function GetStartedForm() {
                 value={form.city}
                 onChange={(e) => set("city", e.target.value)}
                 placeholder="Townsville"
-                className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                className="w-full border border-[var(--color-border)] px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
               />
             </div>
 
             {error && (
-              <p className="text-sm text-red-500">{error}</p>
+              <p className="text-sm text-red-600">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#2563EB] text-white text-sm font-medium py-3 rounded-lg hover:bg-[#1D4ED8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              className="w-full bg-[var(--color-text-primary)] text-white text-sm font-medium py-3 hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
               {loading ? "Redirecting to checkout..." : "Continue to payment"}
             </button>
           </form>
 
-          <p className="text-xs text-[#9CA3AF] text-center mt-4">
+          <p className="text-xs text-[var(--color-text-secondary)] text-center mt-4">
             Payments handled securely by Stripe. Cancel anytime.
           </p>
         </div>
       </div>
     </div>
-  );
-}
-
-export default function GetStartedPage() {
-  return (
-    <Suspense>
-      <GetStartedForm />
-    </Suspense>
   );
 }

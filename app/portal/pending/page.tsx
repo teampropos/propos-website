@@ -27,7 +27,7 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((i) => (
-        <Star key={i} size={13} className={i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"} />
+        <Star key={i} size={13} className={i <= rating ? "fill-[#B08A2E] text-[#B08A2E]" : "text-[var(--color-border)]"} />
       ))}
     </div>
   );
@@ -102,13 +102,13 @@ function ReviewCard({
   const canApprove = !requireEdit || hasEdited;
 
   return (
-    <div className="border border-[#E5E7EB] rounded-xl p-5 bg-white">
+    <div className="border border-[var(--color-border)] p-5 bg-[var(--color-paper)]">
       <div className="flex items-start justify-between gap-4 mb-3">
         <div>
-          <p className="font-medium text-[#111827]">{review.reviewer_name || "Anonymous"}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">{review.reviewer_name || "Anonymous"}</p>
           <StarRating rating={review.star_rating} />
         </div>
-        <span className="text-xs text-[#6B7280] whitespace-nowrap">
+        <span className="text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
           {new Date(review.received_at).toLocaleDateString("en-AU", {
             day: "numeric",
             month: "short",
@@ -118,27 +118,27 @@ function ReviewCard({
       </div>
 
       {review.review_text && (
-        <p className="text-sm text-[#374151] bg-[#F9FAFB] rounded-lg p-3 mb-3 leading-relaxed">
+        <p className="text-sm text-[var(--color-text-primary)] bg-[var(--color-surface)] p-3 mb-3 leading-relaxed">
           &ldquo;{review.review_text}&rdquo;
         </p>
       )}
 
       {review.routing_reason && (
-        <p className="text-xs text-[#6B7280] italic mb-3">{review.routing_reason}</p>
+        <p className="text-xs text-[var(--color-text-secondary)] italic mb-3">{review.routing_reason}</p>
       )}
 
       {review.reply_text && (
         <div className="mb-4">
-          <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-1.5">AI Reply</p>
+          <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-1.5">AI Reply</p>
           {editMode ? (
             <textarea
               value={editedReply}
               onChange={(e) => setEditedReply(e.target.value)}
               rows={4}
-              className="w-full border border-[#2563EB] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] resize-none"
+              className="w-full border border-[var(--color-text-primary)] px-3 py-2.5 text-sm focus:outline-none resize-none"
             />
           ) : (
-            <p className="text-sm text-[#374151] border border-[#E5E7EB] rounded-lg p-3 leading-relaxed">
+            <p className="text-sm text-[var(--color-text-primary)] border border-[var(--color-border)] p-3 leading-relaxed">
               {review.reply_text}
             </p>
           )}
@@ -152,18 +152,18 @@ function ReviewCard({
             value={regenerateNote}
             onChange={(e) => setRegenerateNote(e.target.value)}
             placeholder='Optional direction — e.g. "Too formal" or "Mention our new menu"'
-            className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full border border-[var(--color-border)] px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
           />
         </div>
       )}
 
-      {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
+      {error && <p className="text-xs text-red-600 mb-3">{error}</p>}
 
       <div className="flex flex-wrap gap-2">
         <button
           onClick={handleApprove}
           disabled={loading || !canApprove}
-          className="px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-lg hover:bg-[#1D4ED8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-[var(--color-text-primary)] text-white text-sm font-medium hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {editMode && hasEdited ? "Save & Approve" : "Approve"}
         </button>
@@ -175,7 +175,7 @@ function ReviewCard({
               if (!editMode) setEditedReply(review.reply_text || "");
             }}
             disabled={loading}
-            className="px-4 py-2 bg-white border border-[#E5E7EB] text-[#374151] text-sm font-medium rounded-lg hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
+            className="px-4 py-2 bg-[var(--color-paper)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-sm font-medium hover:border-[var(--color-text-primary)] transition-colors"
           >
             {editMode ? "Cancel" : "Edit"}
           </button>
@@ -185,7 +185,7 @@ function ReviewCard({
           <button
             onClick={() => setShowRegenerate(true)}
             disabled={loading}
-            className="px-4 py-2 bg-white border border-[#E5E7EB] text-[#374151] text-sm font-medium rounded-lg hover:border-[#2563EB] hover:text-[#2563EB] transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 bg-[var(--color-paper)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-sm font-medium hover:border-[var(--color-text-primary)] transition-colors flex items-center gap-1.5"
           >
             <RefreshCw size={13} />
             Regenerate
@@ -195,7 +195,7 @@ function ReviewCard({
             <button
               onClick={handleRegenerate}
               disabled={loading}
-              className="px-4 py-2 bg-white border border-[#2563EB] text-[#2563EB] text-sm font-medium rounded-lg hover:bg-[#EFF6FF] transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-2 bg-[var(--color-paper)] border border-[var(--color-accent)] text-[var(--color-accent)] text-sm font-medium hover:bg-[var(--color-surface)] transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
               {loading ? "Generating..." : "Generate"}
@@ -203,7 +203,7 @@ function ReviewCard({
             <button
               onClick={() => { setShowRegenerate(false); setRegenerateNote(""); }}
               disabled={loading}
-              className="px-4 py-2 bg-white border border-[#E5E7EB] text-[#6B7280] text-sm font-medium rounded-lg hover:text-[#111827] transition-colors"
+              className="px-4 py-2 bg-[var(--color-paper)] border border-[var(--color-border)] text-[var(--color-text-secondary)] text-sm font-medium hover:text-[var(--color-text-primary)] transition-colors"
             >
               Cancel
             </button>
@@ -213,14 +213,14 @@ function ReviewCard({
         <button
           onClick={handleDiscard}
           disabled={loading}
-          className="px-4 py-2 bg-white border border-[#E5E7EB] text-[#6B7280] text-sm font-medium rounded-lg hover:border-red-300 hover:text-red-500 transition-colors"
+          className="px-4 py-2 bg-[var(--color-paper)] border border-[var(--color-border)] text-[var(--color-text-secondary)] text-sm font-medium hover:border-red-400 hover:text-red-600 transition-colors"
         >
           Discard
         </button>
       </div>
 
       {requireEdit && !hasEdited && (
-        <p className="text-xs text-orange-600 mt-2">Edit the reply before approving.</p>
+        <p className="text-xs text-orange-700 mt-2">Edit the reply before approving.</p>
       )}
     </div>
   );
@@ -244,12 +244,12 @@ function Bucket({
         className="flex items-center justify-between w-full mb-3"
       >
         <div className="flex items-center gap-2">
-          <h2 className="font-heading text-lg font-bold text-[#111827]">{title}</h2>
-          <span className="bg-[#E5E7EB] text-[#374151] text-xs font-medium px-2 py-0.5 rounded-full">
+          <h2 className="font-heading text-lg font-semibold text-[var(--color-text-primary)]">{title}</h2>
+          <span className="border border-[var(--color-border)] text-[var(--color-text-secondary)] text-xs font-medium px-2 py-0.5">
             {count}
           </span>
         </div>
-        {open ? <ChevronUp size={18} className="text-[#6B7280]" /> : <ChevronDown size={18} className="text-[#6B7280]" />}
+        {open ? <ChevronUp size={18} className="text-[var(--color-text-secondary)]" /> : <ChevronDown size={18} className="text-[var(--color-text-secondary)]" />}
       </button>
       {open && <div className="flex flex-col gap-3">{children}</div>}
     </div>
@@ -286,18 +286,18 @@ export default function PendingPage() {
   return (
     <div className="p-8 max-w-3xl">
       <div className="mb-6">
-        <h1 className="font-heading text-3xl font-bold text-[#111827]">Pending Approvals</h1>
-        <p className="text-[#6B7280] mt-1">Reviews that need your attention before a reply is posted.</p>
-        <p className="text-xs text-[#9CA3AF] mt-1">
+        <h1 className="font-heading text-3xl font-semibold text-[var(--color-text-primary)]">Pending Approvals</h1>
+        <p className="text-[var(--color-text-secondary)] mt-1">Reviews that need your attention before a reply is posted.</p>
+        <p className="text-xs text-[var(--color-text-secondary)] mt-1">
           Unanswered reviews can affect how potential customers perceive your business. Negative reviews are always held here — nothing posts without your approval.
         </p>
       </div>
 
       {loading ? (
-        <div className="text-sm text-[#6B7280]">Loading...</div>
+        <div className="text-sm text-[var(--color-text-secondary)]">Loading...</div>
       ) : total === 0 ? (
-        <div className="bg-white border border-[#E5E7EB] rounded-xl p-8 text-center">
-          <p className="text-[#6B7280]">You&apos;re all caught up. Nothing waiting for approval.</p>
+        <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-8 text-center">
+          <p className="text-[var(--color-text-secondary)]">You&apos;re all caught up. Nothing waiting for approval.</p>
         </div>
       ) : (
         <>
@@ -320,13 +320,13 @@ export default function PendingPage() {
           {data!.spam.length > 0 && (
             <Bucket title="Spam / Gibberish" count={data!.spam.length}>
               {data!.spam.map((r) => (
-                <div key={r.id} className="border border-[#E5E7EB] rounded-xl p-5 bg-white">
+                <div key={r.id} className="border border-[var(--color-border)] p-5 bg-[var(--color-paper)]">
                   <div className="flex items-start justify-between gap-4 mb-2">
-                    <p className="font-medium text-[#111827]">{r.reviewer_name || "Anonymous"}</p>
+                    <p className="font-medium text-[var(--color-text-primary)]">{r.reviewer_name || "Anonymous"}</p>
                     <StarRating rating={r.star_rating} />
                   </div>
                   {r.review_text && (
-                    <p className="text-sm text-[#374151] bg-[#F9FAFB] rounded-lg p-3 mb-3">
+                    <p className="text-sm text-[var(--color-text-primary)] bg-[var(--color-surface)] p-3 mb-3">
                       &ldquo;{r.review_text}&rdquo;
                     </p>
                   )}
@@ -334,7 +334,7 @@ export default function PendingPage() {
                     href="https://business.google.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm text-[#2563EB] hover:underline"
+                    className="inline-flex items-center gap-1.5 text-sm text-[var(--color-accent)] hover:underline"
                   >
                     Report to Google <ExternalLink size={13} />
                   </a>
