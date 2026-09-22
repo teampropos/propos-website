@@ -8,7 +8,10 @@ const BUSINESS_TYPES = [
   "Bar",
   "Hotel",
   "Pub",
-  "Bakery",
+  "Takeaway",
+  "Gym",
+  "Hospitality",
+  "Retail Store",
   "Other",
 ];
 
@@ -122,7 +125,7 @@ export default function GetStartedPage() {
                 required
                 value={form.city}
                 onChange={(e) => set("city", e.target.value)}
-                placeholder="Townsville"
+                placeholder="Sydney"
                 className="w-full border border-[var(--color-border)] px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
               />
             </div>
