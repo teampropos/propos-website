@@ -59,10 +59,10 @@ export default function PrivacyPolicyPage() {
               <li>Generate AI-powered review responses on your behalf.</li>
               <li>Process payments via Stripe.</li>
               <li>
-                Send service notifications, including magic link approval emails for negative
-                reviews.
+                Send service notifications, including account setup emails and weekly digests
+                summarising reviews awaiting your approval in the portal.
               </li>
-              <li>Send monthly performance reports.</li>
+              <li>Send weekly and monthly performance reports.</li>
               <li>Improve our Service and AI response quality.</li>
               <li>Comply with legal obligations.</li>
             </ul>

@@ -40,8 +40,8 @@ export default function TermsPage() {
                 Client.
               </li>
               <li>
-                Generate draft replies to negative Google reviews and submit them to the Client for
-                approval via a magic link before posting.
+                Generate draft replies to negative Google reviews and hold them in the Client&rsquo;s
+                portal for review and approval before posting.
               </li>
               <li>
                 Clear existing unanswered reviews (the &lsquo;backlog&rsquo;) upon signup, subject to

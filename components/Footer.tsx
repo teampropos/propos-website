@@ -19,7 +19,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-white/15 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <p className="text-sm text-white/40">&copy; 2025 Propos. All rights reserved.</p>
+          <p className="text-sm text-white/40">&copy; {new Date().getFullYear()} Propos. All rights reserved.</p>
           <div className="flex gap-6 text-sm text-white/40">
             <Link href="/privacy-policy" className="hover:text-white/70 transition-colors duration-150">
               Privacy Policy

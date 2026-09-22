@@ -98,7 +98,7 @@ export default function PreferencesPage() {
           ))}
         </div>
 
-        {tone && (
+        {TONES.find((t) => t.value === tone) && (
           <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4">
             <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Sample reply</p>
             <p className="text-sm text-[var(--color-text-primary)] italic leading-relaxed">

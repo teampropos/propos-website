@@ -22,7 +22,7 @@ export default function HeroSection() {
 
             <div className="flex flex-wrap items-center gap-4 mb-10">
               <Link
-                href="/coming-soon"
+                href="/get-started"
                 className="inline-flex items-center justify-center text-base font-medium bg-[var(--color-text-primary)] text-white px-7 py-3 hover:bg-black transition-colors duration-150"
               >
                 Automate my reviews

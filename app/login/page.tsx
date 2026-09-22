@@ -91,7 +91,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-[var(--color-text-secondary)] mt-6">
           Don&apos;t have an account?{" "}
-          <Link href="/coming-soon" className="text-[var(--color-accent)] hover:underline">
+          <Link href="/get-started" className="text-[var(--color-accent)] hover:underline">
             Get started &rarr;
           </Link>
         </p>

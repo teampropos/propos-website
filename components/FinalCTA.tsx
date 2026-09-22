@@ -11,7 +11,7 @@ export default function FinalCTA() {
           Join hospitality businesses already on autopilot. No lock-in, cancel anytime.
         </p>
         <Link
-          href="/coming-soon"
+          href="/get-started"
           className="inline-flex items-center justify-center text-base font-medium bg-white text-[var(--color-text-primary)] px-8 py-3.5 hover:bg-[var(--color-surface)] transition-colors duration-150"
         >
           Automate my reviews

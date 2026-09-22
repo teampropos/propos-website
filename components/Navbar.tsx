@@ -23,7 +23,7 @@ export default function Navbar() {
             Log in
           </Link>
           <Link
-            href="/coming-soon"
+            href="/get-started"
             className="text-sm font-medium bg-[var(--color-text-primary)] text-white px-5 py-2.5 hover:bg-black transition-colors duration-150"
           >
             Get started
@@ -50,7 +50,7 @@ export default function Navbar() {
             Log in
           </Link>
           <Link
-            href="/coming-soon"
+            href="/get-started"
             className="text-sm font-medium bg-[var(--color-text-primary)] text-white px-5 py-2.5 text-center"
             onClick={() => setMobileOpen(false)}
           >
