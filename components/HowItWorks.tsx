@@ -29,7 +29,7 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 border-t border-[var(--color-border)]">
+        <div className="grid md:grid-cols-3 border-t border-b border-[var(--color-border)]">
           {steps.map((step) => (
             <div
               key={step.number}
