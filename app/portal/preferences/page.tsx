@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 
 interface Client {
   tone_preference: string | null;
+  reply_cadence: string | null;
   owner_name: string | null;
   business_name: string;
   business_type: string;
@@ -37,8 +38,17 @@ const TONES = [
   },
 ];
 
+const CADENCES = [
+  { value: "INSTANT", label: "Instantly", description: "The moment a positive review lands" },
+  { value: "WITHIN_24H", label: "Within 24 hours", description: "A short, natural delay" },
+  { value: "FEW_DAYS", label: "Within 3–4 days", description: "Batched every few days" },
+  { value: "WEEKLY", label: "Weekly", description: "Once a week, Monday mornings" },
+  { value: "MONTHLY", label: "Monthly", description: "Once a month, on the 1st" },
+];
+
 export default function PreferencesPage() {
   const [tone, setTone] = useState<string | null>(null);
+  const [cadence, setCadence] = useState<string | null>(null);
   const [ownerName, setOwnerName] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -47,6 +57,7 @@ export default function PreferencesPage() {
   useEffect(() => {
     api.get<Client>("/api/auth/me").then((c) => {
       setTone(c.tone_preference);
+      setCadence(c.reply_cadence || "INSTANT");
       setOwnerName(c.owner_name || "");
       setLoading(false);
     });
@@ -54,7 +65,7 @@ export default function PreferencesPage() {
 
   function handleSave() {
     setSaving(true);
-    api.post("/api/preferences", { tone_preference: tone, owner_name: ownerName })
+    api.post("/api/preferences", { tone_preference: tone, reply_cadence: cadence, owner_name: ownerName })
       .then(() => {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
@@ -70,7 +81,7 @@ export default function PreferencesPage() {
     <div className="p-8 max-w-2xl">
       <div className="mb-6">
         <h1 className="font-heading text-3xl font-semibold text-[var(--color-text-primary)]">Preferences</h1>
-        <p className="text-[var(--color-text-secondary)] mt-1">Customise how Propos sounds on your behalf.</p>
+        <p className="text-[var(--color-text-secondary)] mt-1">Customise how Propos sounds — and how often it posts — on your behalf.</p>
       </div>
 
       <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-6 mb-4">
@@ -106,6 +117,33 @@ export default function PreferencesPage() {
             </p>
           </div>
         )}
+      </div>
+
+      <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-6 mb-4">
+        <h2 className="font-heading text-lg font-semibold text-[var(--color-text-primary)] mb-1">Reply speed</h2>
+        <p className="text-sm text-[var(--color-text-secondary)] mb-4">
+          How quickly should Propos post replies to positive reviews? This doesn&apos;t affect
+          negative reviews — those always wait for your approval, however fast this is set.
+        </p>
+
+        <div className="grid sm:grid-cols-2 gap-3">
+          {CADENCES.map((c) => (
+            <button
+              key={c.value}
+              onClick={() => setCadence(c.value)}
+              className={`text-left border p-4 transition-colors duration-150 ${
+                cadence === c.value
+                  ? "border-[var(--color-accent)] bg-[var(--color-surface)]"
+                  : "border-[var(--color-border)] hover:border-[var(--color-text-primary)]"
+              }`}
+            >
+              <p className={`font-medium text-sm ${cadence === c.value ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"}`}>
+                {c.label}
+              </p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{c.description}</p>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-6 mb-6">

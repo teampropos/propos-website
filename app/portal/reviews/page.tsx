@@ -17,6 +17,7 @@ interface Review {
 
 const STATUS_LABELS: Record<string, string> = {
   auto_posted: "Auto-posted",
+  scheduled: "Scheduled",
   pending: "Pending",
   needs_human: "Needs review",
   spam: "Spam",
@@ -25,13 +26,14 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, string> = {
   auto_posted: "text-green-700 border-green-200",
+  scheduled: "text-[var(--color-accent)] border-[var(--color-accent)]",
   pending: "text-amber-700 border-amber-200",
   needs_human: "text-orange-700 border-orange-200",
   spam: "text-red-700 border-red-200",
   discarded: "text-[var(--color-text-secondary)] border-[var(--color-border)]",
 };
 
-const FILTERS = ["All", "Auto-posted", "Pending", "Needs review", "Spam", "Discarded"];
+const FILTERS = ["All", "Auto-posted", "Scheduled", "Pending", "Needs review", "Spam", "Discarded"];
 
 function StarRating({ rating }: { rating: number }) {
   return (

@@ -6,6 +6,7 @@ import { MessageSquare, Clock, ShieldCheck, Star } from "lucide-react";
 
 const STATUS_LABELS: Record<string, string> = {
   auto_posted: "Auto-posted",
+  scheduled: "Scheduled to post",
   pending: "Pending approval",
   needs_human: "Needs review",
   spam: "Spam",
@@ -14,6 +15,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, string> = {
   auto_posted: "text-green-700",
+  scheduled: "text-[var(--color-accent)]",
   pending: "text-amber-700",
   needs_human: "text-orange-700",
   spam: "text-red-700",

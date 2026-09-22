@@ -32,6 +32,14 @@ const TONES = [
   },
 ];
 
+const CADENCES = [
+  { value: "INSTANT", label: "Instantly", description: "The moment a positive review lands" },
+  { value: "WITHIN_24H", label: "Within 24 hours", description: "A short, natural delay" },
+  { value: "FEW_DAYS", label: "Within 3–4 days", description: "Batched every few days" },
+  { value: "WEEKLY", label: "Weekly", description: "Once a week, Monday mornings" },
+  { value: "MONTHLY", label: "Monthly", description: "Once a month, on the 1st" },
+];
+
 const STEPS = [
   "Set password",
   "Connect Google",
@@ -75,6 +83,7 @@ function OnboardingInner() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [tone, setTone] = useState("");
+  const [cadence, setCadence] = useState("INSTANT");
   const [ownerName, setOwnerName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -130,7 +139,7 @@ function OnboardingInner() {
   async function handleSavePreferences() {
     setLoading(true);
     try {
-      await api.post("/api/preferences", { tone_preference: tone, owner_name: ownerName });
+      await api.post("/api/preferences", { tone_preference: tone, reply_cadence: cadence, owner_name: ownerName });
       setStep(4);
     } catch {
       setError("Something went wrong saving your preferences.");
@@ -251,13 +260,36 @@ function OnboardingInner() {
               </div>
 
               {tone && (
-                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 mb-5">
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 mb-6">
                   <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Sample reply</p>
                   <p className="text-sm text-[var(--color-text-primary)] italic leading-relaxed">
                     &ldquo;{TONES.find((t2) => t2.value === tone)?.sample}&rdquo;
                   </p>
                 </div>
               )}
+
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Reply speed</h2>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-6">
+                How quickly should positive reviews get replied to? Negative reviews always wait
+                for your approval regardless.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-3 mb-6">
+                {CADENCES.map((c) => (
+                  <button
+                    key={c.value}
+                    onClick={() => setCadence(c.value)}
+                    className={`text-left border p-4 transition-colors ${
+                      cadence === c.value ? "border-[var(--color-accent)] bg-[var(--color-surface)]" : "border-[var(--color-border)] hover:border-[var(--color-text-primary)]"
+                    }`}
+                  >
+                    <p className={`font-medium text-sm ${cadence === c.value ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"}`}>
+                      {c.label}
+                    </p>
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{c.description}</p>
+                  </button>
+                ))}
+              </div>
 
               <button
                 onClick={() => tone && setStep(3)}
