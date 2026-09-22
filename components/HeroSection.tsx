@@ -67,8 +67,8 @@ export default function HeroSection() {
                   Replied by Propos, 40 seconds later
                 </p>
                 <p className="text-[15px] text-[var(--color-text-primary)] leading-relaxed">
-                  Sarah, we&rsquo;re thrilled the wagyu and tiramisu hit the spot!
-                  Tom will be chuffed to hear he looked after you so well.
+                  Sarah, this made our day! So glad the wagyu and tiramisu hit
+                  the spot — can&rsquo;t wait to have you back.
                 </p>
                 <p className="text-[15px] text-[var(--color-text-primary)] mt-2">— Marco</p>
               </div>
