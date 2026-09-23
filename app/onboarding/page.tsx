@@ -41,10 +41,10 @@ const CADENCES = [
 ];
 
 const STEPS = [
-  "Set password",
   "Connect Google",
   "Choose tone",
   "Your name",
+  "Subscribe",
   "Review backlog",
 ];
 
@@ -79,9 +79,16 @@ function OnboardingInner() {
   const searchParams = useSearchParams();
   const setupToken = searchParams.get("token");
 
+  // Legacy path: a client who paid first (e.g. via a Stripe payment link
+  // created outside the app, without going through /get-started) arrives
+  // here with a one-time setup_token instead of an existing login token.
+  // Everyone going through the normal /get-started flow already has a
+  // password and a token in localStorage by the time they land here.
+  const [needsLegacyPasswordSetup, setNeedsLegacyPasswordSetup] = useState(!!setupToken && !getToken());
+  const [legacyPassword, setLegacyPassword] = useState("");
+  const [legacyConfirmPassword, setLegacyConfirmPassword] = useState("");
+
   const [step, setStep] = useState(0);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [tone, setTone] = useState("");
   const [cadence, setCadence] = useState("INSTANT");
   const [ownerName, setOwnerName] = useState("");
@@ -89,21 +96,45 @@ function OnboardingInner() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // If already logged in and onboarding complete, go to portal
+    if (needsLegacyPasswordSetup) return;
+
     const token = getToken();
-    if (token) {
-      api.get<{ onboarding_complete: boolean }>("/api/auth/me")
-        .then((c) => {
-          if (c.onboarding_complete) { router.replace("/portal/dashboard"); return; }
-          if (searchParams.get("gbp_connected")) setStep(2);
-          else if (searchParams.get("gbp_error")) {
-            setStep(1);
-            setError("Couldn't connect your Google Business Profile. Please try again.");
-          }
-        })
-        .catch(() => {});
+    if (!token) {
+      router.replace("/get-started");
+      return;
     }
-  }, [router, searchParams]);
+
+    api.get<{ onboarding_complete: boolean; subscribed: boolean }>("/api/auth/me")
+      .then((c) => {
+        if (c.onboarding_complete) { router.replace("/portal/dashboard"); return; }
+        if (searchParams.get("gbp_connected")) setStep(1);
+        else if (searchParams.get("gbp_error")) {
+          setStep(0);
+          setError("Couldn't connect your Google Business Profile. Please try again.");
+        } else if (searchParams.get("subscribed")) setStep(4);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, searchParams, needsLegacyPasswordSetup]);
+
+  async function handleLegacySetPassword() {
+    setError("");
+    if (legacyPassword.length < 8) { setError("Password must be at least 8 characters."); return; }
+    if (legacyPassword !== legacyConfirmPassword) { setError("Passwords don't match."); return; }
+    setLoading(true);
+    try {
+      const res = await api.post<{ token: string }>("/api/auth/set-password", {
+        setup_token: setupToken,
+        password: legacyPassword,
+      });
+      setToken(res.token);
+      setNeedsLegacyPasswordSetup(false);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleConnectGoogle() {
     setLoading(true);
@@ -117,34 +148,27 @@ function OnboardingInner() {
     }
   }
 
-  async function handleSetPassword() {
-    setError("");
-    if (password.length < 8) { setError("Password must be at least 8 characters."); return; }
-    if (password !== confirmPassword) { setError("Passwords don't match."); return; }
+  async function handleSavePreferences() {
     setLoading(true);
     try {
-      const res = await api.post<{ token: string }>("/api/auth/set-password", {
-        setup_token: setupToken,
-        password,
-      });
-      setToken(res.token);
-      setStep(1);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      await api.post("/api/preferences", { tone_preference: tone, reply_cadence: cadence, owner_name: ownerName });
+      setStep(3);
+    } catch {
+      setError("Something went wrong saving your preferences.");
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleSavePreferences() {
+  async function handleSubscribe() {
     setLoading(true);
+    setError("");
     try {
-      await api.post("/api/preferences", { tone_preference: tone, reply_cadence: cadence, owner_name: ownerName });
-      setStep(4);
-    } catch {
-      setError("Something went wrong saving your preferences.");
-    } finally {
+      const { url } = await api.post<{ url: string }>("/api/checkout", {});
+      window.location.href = url;
+    } catch (e: unknown) {
       setLoading(false);
+      setError(e instanceof Error ? e.message : "Something went wrong starting checkout.");
     }
   }
 
@@ -156,6 +180,52 @@ function OnboardingInner() {
     } catch {
       router.push("/portal/dashboard");
     }
+  }
+
+  if (needsLegacyPasswordSetup) {
+    return (
+      <div className="min-h-screen bg-[var(--color-surface)] flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-lg">
+          <div className="text-center mb-8">
+            <p className="font-heading text-2xl font-semibold text-[var(--color-text-primary)]">Propos</p>
+            <p className="text-[var(--color-text-secondary)] mt-1 text-sm">Let&apos;s get you set up.</p>
+          </div>
+          <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-8">
+            <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Create your password</h2>
+            <p className="text-sm text-[var(--color-text-secondary)] mb-6">You&apos;ll use this to log into Propos.</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">Password</label>
+                <input
+                  type="password"
+                  value={legacyPassword}
+                  onChange={(e) => setLegacyPassword(e.target.value)}
+                  className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
+                  placeholder="At least 8 characters"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">Confirm password</label>
+                <input
+                  type="password"
+                  value={legacyConfirmPassword}
+                  onChange={(e) => setLegacyConfirmPassword(e.target.value)}
+                  className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
+                />
+              </div>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              <button
+                onClick={handleLegacySetPassword}
+                disabled={loading}
+                className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
+              >
+                {loading ? "Setting up..." : "Continue"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -170,50 +240,13 @@ function OnboardingInner() {
 
         <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-8">
 
-          {/* Step 0: Set password */}
+          {/* Step 0: Connect Google */}
           {step === 0 && (
-            <div>
-              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Create your password</h2>
-              <p className="text-sm text-[var(--color-text-secondary)] mb-6">You&apos;ll use this to log into Propos.</p>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">Password</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
-                    placeholder="At least 8 characters"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">Confirm password</label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
-                  />
-                </div>
-                {error && <p className="text-sm text-red-600">{error}</p>}
-                <button
-                  onClick={handleSetPassword}
-                  disabled={loading}
-                  className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
-                >
-                  {loading ? "Setting up..." : "Continue"}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 1: Connect Google */}
-          {step === 1 && (
             <div>
               <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Connect Google Business Profile</h2>
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-                Propos needs access to your Google Business Profile to pull reviews and post replies.
+                Propos needs access to your Google Business Profile to pull reviews and draft replies.
+                Nothing gets posted to your live listing until you subscribe later in this setup.
               </p>
 
               {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
@@ -226,7 +259,7 @@ function OnboardingInner() {
                 {loading ? "Connecting..." : "Connect Google Business Profile"}
               </button>
               <button
-                onClick={() => setStep(2)}
+                onClick={() => setStep(1)}
                 className="w-full text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] py-2.5 mt-1 transition-colors"
               >
                 Skip for now — I&apos;ll connect later
@@ -234,8 +267,8 @@ function OnboardingInner() {
             </div>
           )}
 
-          {/* Step 2: Choose tone */}
-          {step === 2 && (
+          {/* Step 1: Choose tone */}
+          {step === 1 && (
             <div>
               <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Choose your reply tone</h2>
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
@@ -270,8 +303,8 @@ function OnboardingInner() {
 
               <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Reply speed</h2>
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-                How quickly should positive reviews get replied to? Negative reviews always wait
-                for your approval regardless.
+                How quickly should positive reviews get replied to, once you&apos;re subscribed? Negative reviews
+                always wait for your approval regardless.
               </p>
 
               <div className="grid sm:grid-cols-2 gap-3 mb-6">
@@ -292,7 +325,7 @@ function OnboardingInner() {
               </div>
 
               <button
-                onClick={() => tone && setStep(3)}
+                onClick={() => tone && setStep(2)}
                 disabled={!tone}
                 className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
               >
@@ -301,8 +334,8 @@ function OnboardingInner() {
             </div>
           )}
 
-          {/* Step 3: Owner name */}
-          {step === 3 && (
+          {/* Step 2: Owner name */}
+          {step === 2 && (
             <div>
               <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Your name</h2>
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
@@ -325,6 +358,32 @@ function OnboardingInner() {
                 className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
               >
                 {loading ? "Saving..." : "Continue"}
+              </button>
+            </div>
+          )}
+
+          {/* Step 3: Subscribe */}
+          {step === 3 && (
+            <div>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Subscribe to go live</h2>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-6">
+                If you connected Google, you can check your dashboard for a preview of what Propos will post.
+                Subscribing turns that on for real.
+              </p>
+
+              <div className="border border-[var(--color-border)] p-4 mb-6">
+                <p className="text-sm font-semibold text-[var(--color-text-primary)]">$12/month</p>
+                <p className="text-xs text-[var(--color-text-secondary)]">Additional locations $6/month each. Cancel anytime.</p>
+              </div>
+
+              {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+
+              <button
+                onClick={handleSubscribe}
+                disabled={loading}
+                className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
+              >
+                {loading ? "Redirecting to payment..." : "Subscribe — $12/month"}
               </button>
             </div>
           )}

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { api, setToken } from "@/lib/api";
 
 const BUSINESS_TYPES = [
   "Restaurant",
@@ -16,8 +18,10 @@ const BUSINESS_TYPES = [
 ];
 
 export default function GetStartedPage() {
+  const router = useRouter();
   const [form, setForm] = useState({
     email: "",
+    password: "",
     business_name: "",
     business_type: "Restaurant",
     city: "",
@@ -34,17 +38,9 @@ export default function GetStartedPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/checkout`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-      window.location.href = data.url;
+      const data = await api.post<{ token: string }>("/api/auth/register", form);
+      setToken(data.token);
+      router.push("/onboarding");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setLoading(false);
@@ -62,14 +58,14 @@ export default function GetStartedPage() {
             Get started
           </h1>
           <p className="text-[var(--color-text-secondary)] text-sm">
-            Tell us about your business and we&apos;ll set everything up.
+            Create your account and connect Google — no payment needed until you&apos;re ready to go live.
           </p>
         </div>
 
         <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-8">
           <div className="mb-6 border border-[var(--color-border)] p-3">
             <p className="text-sm font-semibold text-[var(--color-text-primary)]">$12/month</p>
-            <p className="text-xs text-[var(--color-text-secondary)]">Additional locations $6/month each</p>
+            <p className="text-xs text-[var(--color-text-secondary)]">Additional locations $6/month each &mdash; you&apos;ll subscribe later in setup</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -83,6 +79,21 @@ export default function GetStartedPage() {
                 value={form.email}
                 onChange={(e) => set("email", e.target.value)}
                 placeholder="you@yourbusiness.com"
+                className="w-full border border-[var(--color-border)] px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                value={form.password}
+                onChange={(e) => set("password", e.target.value)}
+                placeholder="At least 8 characters"
                 className="w-full border border-[var(--color-border)] px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
               />
             </div>
@@ -139,12 +150,12 @@ export default function GetStartedPage() {
               disabled={loading}
               className="w-full bg-[var(--color-text-primary)] text-white text-sm font-medium py-3 hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
-              {loading ? "Redirecting to checkout..." : "Continue to payment"}
+              {loading ? "Creating your account..." : "Create account"}
             </button>
           </form>
 
           <p className="text-xs text-[var(--color-text-secondary)] text-center mt-4">
-            Payments handled securely by Stripe. Cancel anytime.
+            Next you&apos;ll connect Google and see it working &mdash; payment comes after.
           </p>
         </div>
       </div>
