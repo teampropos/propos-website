@@ -18,6 +18,7 @@ interface Review {
 const STATUS_LABELS: Record<string, string> = {
   auto_posted: "Auto-posted",
   scheduled: "Scheduled",
+  preview: "Preview — not posted",
   pending: "Pending",
   needs_human: "Needs review",
   spam: "Spam",
@@ -27,6 +28,7 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_COLORS: Record<string, string> = {
   auto_posted: "text-green-700 border-green-200",
   scheduled: "text-[var(--color-accent)] border-[var(--color-accent)]",
+  preview: "text-[var(--color-accent)] border-[var(--color-accent)]",
   pending: "text-amber-700 border-amber-200",
   needs_human: "text-orange-700 border-orange-200",
   spam: "text-red-700 border-red-200",
@@ -91,17 +93,23 @@ function ReviewModal({ review, onClose }: { review: Review; onClose: () => void 
 
         {review.reply_text && (
           <div className="mt-5 border-t border-[var(--color-border)] pt-4">
-            <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Your reply</p>
+            <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
+              {review.replied_at ? "Your reply" : "Draft reply — not yet posted"}
+            </p>
             <p className="text-sm text-[var(--color-text-primary)] bg-[var(--color-surface)] p-4 leading-relaxed">
               {review.reply_text}
             </p>
-            {review.replied_at && (
+            {review.replied_at ? (
               <p className="text-xs text-[var(--color-text-secondary)] mt-2">
                 Posted {new Date(review.replied_at).toLocaleDateString("en-AU", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
                 })}
+              </p>
+            ) : (
+              <p className="text-xs text-[var(--color-text-secondary)] mt-2">
+                This hasn&rsquo;t been posted to Google. Subscribe to have replies like this post automatically.
               </p>
             )}
           </div>

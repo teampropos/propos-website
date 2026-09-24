@@ -10,11 +10,14 @@ interface Client {
   email: string;
   business_name: string;
   onboarding_complete: boolean;
+  gbp_connected: boolean;
+  subscribed: boolean;
 }
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
+  const [subscribed, setSubscribed] = useState(true);
 
   useEffect(() => {
     const token = getToken();
@@ -25,10 +28,15 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
     api.get<Client>("/api/auth/me")
       .then((client) => {
-        if (!client.onboarding_complete) {
+        // Full onboarding isn't required to browse the portal — only having
+        // connected Google, so a client can see reviews and draft replies
+        // before subscribing. Someone who hasn't connected anything yet has
+        // nothing to look at, so send them back into the wizard.
+        if (!client.onboarding_complete && !client.gbp_connected) {
           router.replace("/onboarding");
           return;
         }
+        setSubscribed(client.subscribed);
         setReady(true);
       })
       .catch(() => {
@@ -48,6 +56,12 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     <div className="flex min-h-screen bg-[var(--color-surface)]">
       <PortalSidebar />
       <div className="flex-1 overflow-auto">
+        {!subscribed && (
+          <div className="bg-[var(--color-accent)] text-white text-sm px-6 py-2.5 flex items-center justify-between gap-4">
+            <span>Preview mode &mdash; Propos isn&rsquo;t posting live yet. Subscribe to turn on auto-replies.</span>
+            <a href="/onboarding" className="underline font-medium whitespace-nowrap">Subscribe &rarr;</a>
+          </div>
+        )}
         {children}
       </div>
     </div>
