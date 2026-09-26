@@ -94,6 +94,7 @@ function OnboardingInner() {
   const [ownerName, setOwnerName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [backlogConfirmation, setBacklogConfirmation] = useState<{ count: number; amountCents: number } | null>(null);
 
   useEffect(() => {
     if (needsLegacyPasswordSetup) return;
@@ -176,7 +177,23 @@ function OnboardingInner() {
     setLoading(true);
     setError("");
     try {
-      await api.post("/api/onboarding/complete", { backlog: withBacklog });
+      const res = await api.post<{
+        backlog_status: string | null;
+        backlog_review_count: number | null;
+        backlog_amount_cents: number | null;
+      }>("/api/onboarding/complete", { backlog: withBacklog });
+
+      if (withBacklog && res.backlog_amount_cents) {
+        // A real charge just happened — show exactly what for, rather than
+        // silently redirecting as if nothing happened.
+        setBacklogConfirmation({
+          count: res.backlog_review_count || 0,
+          amountCents: res.backlog_amount_cents,
+        });
+        setLoading(false);
+        return;
+      }
+
       router.push("/portal/dashboard");
     } catch (e: unknown) {
       if (withBacklog) {
@@ -400,46 +417,69 @@ function OnboardingInner() {
           {/* Step 4: Backlog */}
           {step === 4 && (
             <div>
-              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Reply to your existing reviews?</h2>
-              <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-                Propos can work through your backlog of unanswered reviews — generating a reply for each one for
-                your approval, nothing posts automatically. We&apos;ll check exactly how many reviews you have and
-                charge the matching one-time fee below to your card on file.
-              </p>
+              {backlogConfirmation ? (
+                <div className="text-center">
+                  <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">
+                    You&apos;re charged and we&apos;re on it
+                  </h2>
+                  <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-6">
+                    Charged <span className="text-[var(--color-text-primary)] font-medium">
+                      ${(backlogConfirmation.amountCents / 100).toFixed(2)}
+                    </span> for your {backlogConfirmation.count} existing review{backlogConfirmation.count !== 1 ? "s" : ""}.
+                    Propos is drafting a reply for each one now — nothing posts automatically. We&apos;ll email you
+                    once they&apos;re ready to review in Pending Approvals.
+                  </p>
+                  <button
+                    onClick={() => router.push("/portal/dashboard")}
+                    className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors"
+                  >
+                    Go to dashboard
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Reply to your existing reviews?</h2>
+                  <p className="text-sm text-[var(--color-text-secondary)] mb-6">
+                    Propos can work through your backlog of unanswered reviews — generating a reply for each one for
+                    your approval, nothing posts automatically. We&apos;ll check exactly how many reviews you have and
+                    charge the matching one-time fee below to your card on file.
+                  </p>
 
-              <div className="grid grid-cols-2 gap-px bg-[var(--color-border)] border border-[var(--color-border)] mb-5">
-                {[
-                  { label: "1–25 reviews", price: "$49" },
-                  { label: "26–100 reviews", price: "$99" },
-                  { label: "101–200 reviews", price: "$149" },
-                  { label: "200+ reviews", price: "$199" },
-                ].map((tier) => (
-                  <div key={tier.label} className="bg-[var(--color-paper)] p-4 text-center">
-                    <p className="text-sm text-[var(--color-text-secondary)]">{tier.label}</p>
-                    <p className="font-heading text-xl font-semibold text-[var(--color-text-primary)] mt-1">{tier.price}</p>
-                    <p className="text-xs text-[var(--color-text-secondary)]">one-time</p>
+                  <div className="grid grid-cols-2 gap-px bg-[var(--color-border)] border border-[var(--color-border)] mb-5">
+                    {[
+                      { label: "1–25 reviews", price: "$49" },
+                      { label: "26–100 reviews", price: "$99" },
+                      { label: "101–200 reviews", price: "$149" },
+                      { label: "200+ reviews", price: "$199" },
+                    ].map((tier) => (
+                      <div key={tier.label} className="bg-[var(--color-paper)] p-4 text-center">
+                        <p className="text-sm text-[var(--color-text-secondary)]">{tier.label}</p>
+                        <p className="font-heading text-xl font-semibold text-[var(--color-text-primary)] mt-1">{tier.price}</p>
+                        <p className="text-xs text-[var(--color-text-secondary)]">one-time</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+                  {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
 
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => handleComplete(true)}
-                  disabled={loading}
-                  className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
-                >
-                  Yes, reply to my backlog
-                </button>
-                <button
-                  onClick={() => handleComplete(false)}
-                  disabled={loading}
-                  className="w-full bg-[var(--color-paper)] border border-[var(--color-border)] text-[var(--color-text-secondary)] font-medium py-2.5 hover:border-[var(--color-text-primary)] hover:text-[var(--color-text-primary)] transition-colors"
-                >
-                  No thanks, skip
-                </button>
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => handleComplete(true)}
+                      disabled={loading}
+                      className="w-full bg-[var(--color-text-primary)] text-white font-medium py-2.5 hover:bg-black transition-colors disabled:opacity-60"
+                    >
+                      {loading ? "Checking your reviews..." : "Yes, reply to my backlog"}
+                    </button>
+                    <button
+                      onClick={() => handleComplete(false)}
+                      disabled={loading}
+                      className="w-full bg-[var(--color-paper)] border border-[var(--color-border)] text-[var(--color-text-secondary)] font-medium py-2.5 hover:border-[var(--color-text-primary)] hover:text-[var(--color-text-primary)] transition-colors"
+                    >
+                      No thanks, skip
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

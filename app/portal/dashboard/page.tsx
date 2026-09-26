@@ -39,7 +39,17 @@ interface DashboardData {
 
 interface Client {
   business_name: string;
+  backlog_requested: boolean;
+  backlog_status: string | null;
+  backlog_review_count: number | null;
 }
+
+const BACKLOG_MESSAGES: Record<string, string> = {
+  pending: "queued and about to start",
+  processing: "being drafted right now",
+  complete: "done — drafts are waiting in Pending Approvals",
+  failed: "hit a problem — contact support@getpropos.com and we'll sort it out",
+};
 
 function StatCard({
   label,
@@ -98,6 +108,14 @@ export default function DashboardPage() {
 
       {data ? (
         <>
+          {client?.backlog_requested && client.backlog_status && client.backlog_status !== "complete" && (
+            <div className="bg-[var(--color-paper)] border-l-2 border-[var(--color-accent)] border-y border-r border-[var(--color-border)] p-5 mb-6">
+              <p className="text-sm font-medium text-[var(--color-text-primary)]">
+                Backlog processing — {client.backlog_review_count ?? "your"} review{client.backlog_review_count !== 1 ? "s" : ""}: {BACKLOG_MESSAGES[client.backlog_status] || client.backlog_status}
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-[var(--color-border)] border border-[var(--color-border)] mb-6">
             <StatCard
               label="Replies this month"
