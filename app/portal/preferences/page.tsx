@@ -7,6 +7,8 @@ interface Client {
   tone_preference: string | null;
   reply_cadence: string | null;
   owner_name: string | null;
+  signoff_style: string | null;
+  custom_instructions: string | null;
   business_name: string;
   business_type: string;
 }
@@ -46,10 +48,18 @@ const CADENCES = [
   { value: "MONTHLY", label: "Monthly", description: "Once a month, on the 1st" },
 ];
 
+const SIGNOFF_STYLES = [
+  { value: "NONE", label: "No sign-off", description: "The reply ends on its own — no name at all" },
+  { value: "OWNER_NAME", label: "My name", description: "Sign off personally, e.g. “Cheers, Ben”" },
+  { value: "BUSINESS_NAME", label: "Business name", description: "Sign off as the business, e.g. “The Ampic Group Team”" },
+];
+
 export default function PreferencesPage() {
   const [tone, setTone] = useState<string | null>(null);
   const [cadence, setCadence] = useState<string | null>(null);
   const [ownerName, setOwnerName] = useState("");
+  const [signoffStyle, setSignoffStyle] = useState("NONE");
+  const [customInstructions, setCustomInstructions] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -59,13 +69,21 @@ export default function PreferencesPage() {
       setTone(c.tone_preference);
       setCadence(c.reply_cadence || "INSTANT");
       setOwnerName(c.owner_name || "");
+      setSignoffStyle(c.signoff_style || "NONE");
+      setCustomInstructions(c.custom_instructions || "");
       setLoading(false);
     });
   }, []);
 
   function handleSave() {
     setSaving(true);
-    api.post("/api/preferences", { tone_preference: tone, reply_cadence: cadence, owner_name: ownerName })
+    api.post("/api/preferences", {
+      tone_preference: tone,
+      reply_cadence: cadence,
+      owner_name: ownerName,
+      signoff_style: signoffStyle,
+      custom_instructions: customInstructions,
+    })
       .then(() => {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
@@ -120,6 +138,23 @@ export default function PreferencesPage() {
       </div>
 
       <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-6 mb-4">
+        <h2 className="font-heading text-lg font-semibold text-[var(--color-text-primary)] mb-1">Anything else Propos should know?</h2>
+        <p className="text-sm text-[var(--color-text-secondary)] mb-3">
+          Optional. Free-form guidance for how you&apos;d like replies to sound — a phrase you always use, something
+          to avoid, a detail worth mentioning. This gets added to every reply Propos drafts.
+        </p>
+        <textarea
+          value={customInstructions}
+          onChange={(e) => setCustomInstructions(e.target.value)}
+          maxLength={1000}
+          rows={3}
+          placeholder="e.g. Mention we're dog-friendly when it's relevant. Keep it casual, not corporate."
+          className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)] resize-none"
+        />
+        <p className="text-xs text-[var(--color-text-secondary)] text-right mt-1">{customInstructions.length}/1000</p>
+      </div>
+
+      <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-6 mb-4">
         <h2 className="font-heading text-lg font-semibold text-[var(--color-text-primary)] mb-1">Reply speed</h2>
         <p className="text-sm text-[var(--color-text-secondary)] mb-4">
           How quickly should Propos post replies to positive reviews? This doesn&apos;t affect
@@ -147,17 +182,43 @@ export default function PreferencesPage() {
       </div>
 
       <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-6 mb-6">
-        <h2 className="font-heading text-lg font-semibold text-[var(--color-text-primary)] mb-1">Owner name</h2>
-        <p className="text-sm text-[var(--color-text-secondary)] mb-3">
-          If provided, replies will be signed off with your name.
+        <h2 className="font-heading text-lg font-semibold text-[var(--color-text-primary)] mb-1">Sign-off</h2>
+        <p className="text-sm text-[var(--color-text-secondary)] mb-4">
+          How should replies be signed off, if at all? Entirely your call — plenty of businesses prefer no
+          personal name attached to public replies.
         </p>
-        <input
-          type="text"
-          value={ownerName}
-          onChange={(e) => setOwnerName(e.target.value)}
-          placeholder="e.g. Marco"
-          className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
-        />
+
+        <div className="grid sm:grid-cols-3 gap-3 mb-4">
+          {SIGNOFF_STYLES.map((s) => (
+            <button
+              key={s.value}
+              onClick={() => setSignoffStyle(s.value)}
+              className={`text-left border p-4 transition-colors duration-150 ${
+                signoffStyle === s.value
+                  ? "border-[var(--color-accent)] bg-[var(--color-surface)]"
+                  : "border-[var(--color-border)] hover:border-[var(--color-text-primary)]"
+              }`}
+            >
+              <p className={`font-medium text-sm ${signoffStyle === s.value ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"}`}>
+                {s.label}
+              </p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{s.description}</p>
+            </button>
+          ))}
+        </div>
+
+        {signoffStyle === "OWNER_NAME" && (
+          <div>
+            <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">Your name</label>
+            <input
+              type="text"
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
+              placeholder="e.g. Marco"
+              className="w-full border border-[var(--color-border)] px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-text-primary)]"
+            />
+          </div>
+        )}
       </div>
 
       <button
