@@ -15,6 +15,7 @@ interface Location {
 
 interface Client {
   gbp_connected: boolean;
+  google_needs_reconnect: boolean;
 }
 
 const TONE_LABELS: Record<string, string> = {
@@ -28,6 +29,7 @@ function LocationsPageInner() {
   const searchParams = useSearchParams();
   const [locations, setLocations] = useState<Location[]>([]);
   const [gbpConnected, setGbpConnected] = useState(false);
+  const [needsReconnect, setNeedsReconnect] = useState(false);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState(false);
@@ -46,7 +48,10 @@ function LocationsPageInner() {
   useEffect(() => {
     Promise.all([
       loadLocations(),
-      api.get<Client>("/api/auth/me").then((c) => setGbpConnected(c.gbp_connected)),
+      api.get<Client>("/api/auth/me").then((c) => {
+        setGbpConnected(c.gbp_connected);
+        setNeedsReconnect(c.google_needs_reconnect);
+      }),
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -151,19 +156,29 @@ function LocationsPageInner() {
         </div>
       )}
 
+      {!loading && needsReconnect && (
+        <div className="flex items-center gap-2 border border-orange-300 bg-orange-50 text-orange-800 text-sm p-3 mb-6">
+          <AlertCircle size={16} />
+          Propos lost access to your Google Business Profile — reviews have stopped being read or replied to
+          until you reconnect.
+        </div>
+      )}
+
       {!loading && (
         <div className="bg-[var(--color-paper)] border border-[var(--color-border)] p-5 mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {gbpConnected ? (
               <CheckCircle size={20} className="text-green-700" strokeWidth={1.75} />
             ) : (
-              <XCircle size={20} className="text-[var(--color-text-secondary)]" strokeWidth={1.75} />
+              <XCircle size={20} className={needsReconnect ? "text-orange-600" : "text-[var(--color-text-secondary)]"} strokeWidth={1.75} />
             )}
             <div>
               <p className="font-medium text-[var(--color-text-primary)]">Google Business Profile</p>
               <p className="text-sm text-[var(--color-text-secondary)]">
                 {gbpConnected
                   ? "Connected — Propos can read and reply to your reviews."
+                  : needsReconnect
+                  ? "Connection lost — reconnect to resume reading and replying to reviews."
                   : "Connect your Google account so Propos can manage your reviews."}
               </p>
             </div>
@@ -174,7 +189,7 @@ function LocationsPageInner() {
               disabled={connecting}
               className="px-4 py-2 bg-[var(--color-text-primary)] text-white text-sm font-medium hover:bg-black transition-colors disabled:opacity-50 whitespace-nowrap"
             >
-              {connecting ? "Connecting..." : "Connect Google"}
+              {connecting ? "Connecting..." : needsReconnect ? "Reconnect Google" : "Connect Google"}
             </button>
           )}
         </div>
