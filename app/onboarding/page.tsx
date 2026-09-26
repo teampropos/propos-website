@@ -174,10 +174,19 @@ function OnboardingInner() {
 
   async function handleComplete(withBacklog: boolean) {
     setLoading(true);
+    setError("");
     try {
       await api.post("/api/onboarding/complete", { backlog: withBacklog });
       router.push("/portal/dashboard");
-    } catch {
+    } catch (e: unknown) {
+      if (withBacklog) {
+        // A backlog charge failure (e.g. card decline) — let them fix their
+        // card or choose to skip, rather than silently dropping the charge
+        // and moving on as if it worked.
+        setError(e instanceof Error ? e.message : "Something went wrong charging for backlog processing.");
+        setLoading(false);
+        return;
+      }
       router.push("/portal/dashboard");
     }
   }
@@ -393,7 +402,9 @@ function OnboardingInner() {
             <div>
               <h2 className="font-heading text-2xl font-semibold text-[var(--color-text-primary)] mb-1">Reply to your existing reviews?</h2>
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-                Propos can work through your backlog of unanswered reviews — generating a reply for each one for your approval. One-time fee based on volume.
+                Propos can work through your backlog of unanswered reviews — generating a reply for each one for
+                your approval, nothing posts automatically. We&apos;ll check exactly how many reviews you have and
+                charge the matching one-time fee below to your card on file.
               </p>
 
               <div className="grid grid-cols-2 gap-px bg-[var(--color-border)] border border-[var(--color-border)] mb-5">
@@ -410,6 +421,8 @@ function OnboardingInner() {
                   </div>
                 ))}
               </div>
+
+              {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
 
               <div className="flex flex-col gap-2">
                 <button
